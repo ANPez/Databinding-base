@@ -2,27 +2,46 @@ package com.antonionicolaspina.databindingbase.presentation.views.activities;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.antonionicolaspina.databindingbase.R;
+import com.antonionicolaspina.databindingbase.BR;
 import com.antonionicolaspina.databindingbase.databinding.ActivityMainBinding;
+import com.antonionicolaspina.databindingbase.presentation.binder.ItemBinderBase;
+import com.antonionicolaspina.databindingbase.presentation.viewmodels.ElementsViewModel;
+
+import javax.inject.Inject;
 
 public class MainActivity extends BaseActivity {
+
+  @Inject ElementsViewModel viewModel;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+    getActivityComponent().inject(this);
 
+    ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
     setSupportActionBar(binding.toolbar);
 
-    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-    fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            .setAction("Action", null).show());
+    binding.setItemsVM(viewModel);
+    binding.setView(() -> new ItemBinderBase<>(BR.itemVM, R.layout.list_item));
+
+    viewModel.initialize();
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    viewModel.pause();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    viewModel.resume();
   }
 
   @Override
